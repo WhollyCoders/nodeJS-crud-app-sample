@@ -4,8 +4,9 @@ var app         = express();
 var bodyParser  = require('body-parser');
 var mongoose    = require('mongoose');
 var Book        = require('./Book.model');
+var port        = 8088;
+var db          = 'mongodb://localhost:27017/example';
 
-var db = 'mongodb://localhost:27017/example';
 mongoose.connect(db);
 
 app.use(bodyParser.json());
@@ -35,8 +36,8 @@ app.get('/books/:id', function(request, response){
 
     _id: request.params.id
 
-  }).exec(function(err, book){
-    if(err){
+  }).exec(function(error, book){
+    if(error){
       response.send("An ERROR has occured!!!");
     }else{
       console.log(book);
@@ -45,7 +46,23 @@ app.get('/books/:id', function(request, response){
   });
 });
 
-var port = 8088;
+app.post('/book', function(request, response){
+  var newBook       = new Book();
+  
+  newBook.title     = request.body.title;
+  newBook.author    = request.body.author;
+  newBook.category  = request.body.category;
+
+  newBook.save(function(error, book){
+    if(error){
+      response.send("An ERROR has saving book occured!!!");
+    }else{
+      console.log(book);
+      response.json(book);
+    }
+  });
+
+});
 
 app.listen(port, function(){
   console.log('App Listening on Port '+port);
